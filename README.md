@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 <h1 align="center"><strong>Tracing for Mojito</strong></h1>
 <p align="center">
     <a href="https://goreportcard.com/report/github.com/dragse/mojito-extension-tracing" alt="Go Report Card">
@@ -44,3 +37,61 @@ Tracing for Mojito provides easy tracking and configuration of OpenTracing Provi
     <a href="https://sonarcloud.io/summary/overall?id=dragse_mojito-extension-tracing" alt="Quality Gate">
         <img src="https://sonarcloud.io/api/project_badges/measure?project=go-mojito_extension-plausible&metric=bugs" /></a>
 </p>
+<p align="center"><strong>Supported Exporter</strong></p>
+<ul style="list-style: none;">
+    <li><input type="checkbox" checked><a href="https://www.jaegertracing.io/">Jaeger</a></li>
+</ul>
+
+<p align="center"><strong>Documentation</strong></p>
+<h2>Enabling Tracing</h2>
+<p>
+    Enabling Open-Telemetry Tracing is as simple as registering a middleware on your router.
+</p>
+<pre>
+<code>
+import (
+    tracing_extension "github.com/dragse/mojito-extension-tracing"
+    "github.com/go-mojito/mojito"
+)</code>
+
+<code>
+func init() {
+    tracing_extension.Configure(
+        tracing_extension.JAEGER, // Use JAEGER as Provider
+        "mojito-service", map[string]any{
+            "environment": "productive", // Custom Tags for all Traces
+        },
+        mojito_extension_tracing.ExporterConfig{
+            ProviderURL: "http://localhost:14268/api/traces", // Jaeger Endpoint
+    })
+}</code>
+
+<code>
+func main() {
+    mojito.WithMiddleware(tracing_extension.Middleware)
+}</code>
+</pre>
+
+<h2>Custom more detailed Tracing</h2>
+<p>
+    For more detailed Information  you can trace every single function which is dynamically connected to the method Tracing
+</p>
+<pre>
+<code>
+func HomeHandler(ctx mojito.RendererContext, cache mojito.Cache) {
+	span := mojito_extension_tracing.StartTracing(ctx, "Home Handler")
+	defer span.End()
+
+	span.AddEvent("Load Cache")
+	var lastVisit time.Time
+	cache.GetOrDefault("lastVisit", &lastVisit, time.Now())
+	span.SetAttributes(attribute.String("lastVisit", lastVisit.String()))
+	span.AddEvent("Set new lastVisit-Variable")
+	cache.Set("lastVisit", time.Now())
+
+	span.AddEvent("Set Render-Information")
+	ctx.ViewBag().Set("lastVisit", lastVisit)
+	ctx.MustView("home")
+}
+</code>
+</pre>
