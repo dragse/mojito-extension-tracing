@@ -76,8 +76,14 @@ func main() {
     For more detailed Information  you can trace every single function which is dynamically connected to the method Tracing
 </p>
 <pre>
+<code>import (
+	tracing_extension "github.com/dragse/mojito-extension-tracing"
+	"github.com/go-mojito/mojito"
+	"go.opentelemetry.io/otel/attribute"
+	"time"
+)</code>
 <code>func HomeHandler(ctx mojito.RendererContext, cache mojito.Cache) {
-	span := mojito_extension_tracing.StartTracing(ctx, "Home Handler")
+	span := tracing_extension.StartTracing(ctx, "Home Handler")
 	defer span.End()</code>
 
 <code>
