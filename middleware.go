@@ -24,6 +24,7 @@ func Middleware(ctx mojito.Context, next func() error) error {
 	span.AddEvent("next() Function complete")
 
 	if err != nil {
+		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
 		return err
 	}
