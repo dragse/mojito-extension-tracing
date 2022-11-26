@@ -37,19 +37,18 @@ Tracing for Mojito provides easy tracking and configuration of OpenTracing Provi
     <a href="https://sonarcloud.io/summary/overall?id=dragse_mojito-extension-tracing" alt="Quality Gate">
         <img src="https://sonarcloud.io/api/project_badges/measure?project=go-mojito_extension-plausible&metric=bugs" /></a>
 </p>
-<p align="center"><strong>Supported Exporter</strong></p>
+<h2 align="center"><strong>Supported Exporter</strong></h2>
 <ul style="list-style: none;">
     <li><input type="checkbox" checked><a href="https://www.jaegertracing.io/">Jaeger</a></li>
 </ul>
 
-<p align="center"><strong>Documentation</strong></p>
-<h2>Enabling Tracing</h2>
+<h2 align="center"><strong>Documentation</strong></h2>
+<h3>Enabling Tracing</h3>
 <p>
     Enabling Open-Telemetry Tracing is as simple as registering a middleware on your router.
 </p>
 <pre>
-<code>
-import (
+<code>import (
     tracing_extension "github.com/dragse/mojito-extension-tracing"
     "github.com/go-mojito/mojito"
 )</code>
@@ -72,26 +71,26 @@ func main() {
 }</code>
 </pre>
 
-<h2>Custom more detailed Tracing</h2>
+<h3>Custom more detailed Tracing</h3>
 <p>
     For more detailed Information  you can trace every single function which is dynamically connected to the method Tracing
 </p>
 <pre>
-<code>
-func HomeHandler(ctx mojito.RendererContext, cache mojito.Cache) {
+<code>func HomeHandler(ctx mojito.RendererContext, cache mojito.Cache) {
 	span := mojito_extension_tracing.StartTracing(ctx, "Home Handler")
-	defer span.End()
+	defer span.End()</code>
 
+<code>
 	span.AddEvent("Load Cache")
 	var lastVisit time.Time
 	cache.GetOrDefault("lastVisit", &lastVisit, time.Now())
 	span.SetAttributes(attribute.String("lastVisit", lastVisit.String()))
 	span.AddEvent("Set new lastVisit-Variable")
-	cache.Set("lastVisit", time.Now())
+	cache.Set("lastVisit", time.Now())</code>
 
+<code>
 	span.AddEvent("Set Render-Information")
 	ctx.ViewBag().Set("lastVisit", lastVisit)
 	ctx.MustView("home")
-}
-</code>
+}</code>
 </pre>
