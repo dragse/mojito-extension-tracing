@@ -48,12 +48,12 @@ Tracing for Mojito provides easy tracking and configuration of OpenTracing Provi
     Enabling Open-Telemetry Tracing is as simple as registering a middleware on your router.
 </p>
 <pre>
-```go
-import (
+<code>import (
     tracing_extension "github.com/dragse/mojito-extension-tracing"
     "github.com/go-mojito/mojito"
-)
+)</code>
 
+<code>
 func init() {
     tracing_extension.Configure(
         tracing_extension.JAEGER, // Use JAEGER as Provider
@@ -63,29 +63,30 @@ func init() {
         mojito_extension_tracing.ExporterConfig{
             ProviderURL: "http://localhost:14268/api/traces", // Jaeger Endpoint
     })
-}
+}</code>
 
+<code>
 func main() {
     mojito.WithMiddleware(tracing_extension.Middleware)
-}
-```
+}</code>
+</pre>
 
 <h3>Custom more detailed Tracing</h3>
 <p>
     For more detailed Information  you can trace every single function which is dynamically connected to the method Tracing
 </p>
-```go
-import (
+<pre>
+<code>import (
 	tracing_extension "github.com/dragse/mojito-extension-tracing"
 	"github.com/go-mojito/mojito"
 	"go.opentelemetry.io/otel/attribute"
 	"time"
-)
-
-func HomeHandler(ctx mojito.RendererContext, cache mojito.Cache) {
+)</code>
+<code>func HomeHandler(ctx mojito.RendererContext, cache mojito.Cache) {
 	span := tracing_extension.StartTracing(ctx, "Home Handler")
 	defer span.End()</code>
 
+<code>
 	span.AddEvent("Load Cache")
 	var lastVisit time.Time
 	cache.GetOrDefault("lastVisit", &lastVisit, time.Now())
@@ -93,8 +94,9 @@ func HomeHandler(ctx mojito.RendererContext, cache mojito.Cache) {
 	span.AddEvent("Set new lastVisit-Variable")
 	cache.Set("lastVisit", time.Now())</code>
 
+<code>
 	span.AddEvent("Set Render-Information")
 	ctx.ViewBag().Set("lastVisit", lastVisit)
 	ctx.MustView("home")
-}
-```
+}</code>
+</pre>
